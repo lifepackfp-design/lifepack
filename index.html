@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0056)file:///C:/Users/fpdey/Downloads/LifePack_site_v4_3.html -->
 <html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -758,13 +757,20 @@ footer a{color:rgba(255,255,255,0.35);text-decoration:underline;}
 </div>
 
 <script>
+var VALID_PAGES = ['top', 'kosodate', 'rogo', 'jutaku'];
 function showPage(id) {
+  if (VALID_PAGES.indexOf(id) === -1) id = 'top';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   const t = document.getElementById('tab-' + id);
   if (t) t.classList.add('active');
+  // URLハッシュを現在のページに同期（topのときはハッシュを消す）
+  const target = id === 'top' ? location.pathname : '#' + id;
+  if (location.hash.replace('#', '') !== (id === 'top' ? '' : id)) {
+    history.replaceState(null, '', target);
+  }
 }
 function scrollToContact() {
   const active = document.querySelector('.page.active');
@@ -772,9 +778,17 @@ function scrollToContact() {
   const el = document.getElementById(id === 'top' ? 'contact-top' : id + '-contact');
   if (el) el.scrollIntoView({ behavior: 'smooth' });
 }
-// 必ずトップページから開始
+// URLハッシュに対応（例：#jutaku で住宅ページを直接開く）
+function pageFromHash() {
+  const h = (location.hash || '').replace('#', '');
+  return VALID_PAGES.indexOf(h) !== -1 ? h : 'top';
+}
 window.addEventListener('DOMContentLoaded', () => {
-  showPage('top');
+  showPage(pageFromHash());
+});
+// 戻る/進む・ハッシュ変更にも追従
+window.addEventListener('hashchange', () => {
+  showPage(pageFromHash());
 });
 </script>
 
